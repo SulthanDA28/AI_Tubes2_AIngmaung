@@ -1,46 +1,38 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from numba import jit
-data = pd.read_csv('./data_train.csv')
-validation = pd.read_csv('./data_validation.csv')
+import sys
 
-# print(row["blue"])
-# print(row)
-def normalisasi(data):
-    for col in data.columns:
-        if col != 'price_range':
-            data[col] = (data[col] - data[col].min()) / (data[col].max() - data[col].min())
-    return data
+data = pd.read_csv(sys.argv[1])
+validation = pd.read_csv(sys.argv[2])
 
-data = normalisasi(data)
-validation = normalisasi(validation)
-
-
-def knn(data, k, cari):
+def knn(data, k, cari, features):
     result = pd.DataFrame(columns=['distance', 'price_range'], index=range(data.shape[0]))
-    for i in range(data.shape[0]):
-        jml = 0
-        for col in ['ram','px_width', 'battery_power','px_height']:
-            if col != 'price_range':
-                jml += (data[col].iloc[i] - cari[col]) ** 2
-        result['distance'].iloc[i] = np.sqrt(jml)
-        result['price_range'].iloc[i]= data.iloc[i]['price_range']
+    eucDist = np.linalg.norm(data[features].values - cari[features].values, axis=1)
+    result['distance'] = eucDist
+    result['price_range'] = data['price_range']
     result = result.sort_values(by=['distance'])
     result = result.iloc[0:k]
-    hasil = result.groupby('price_range').count().idxmax()['distance']
-    return hasil
+    return result.groupby('price_range').count()[::-1].idxmax()['distance']
 
-# print(validation["price_range"].iloc[1])
-# knn(data, 5, validation.iloc[1])
+def normalization(data, validation):
+    for col in data.columns:
+        if col != 'price_range':
+            MIN = min(data[col].min(),validation[col].min())
+            MAX = max(data[col].max(),validation[col].max())
+            data[col] = (data[col] - MIN) / (MAX - MIN)
+            validation[col] = (validation[col] - MIN) / (MAX - MIN)
+    return data, validation
 
-truePositive = 0
-trueNegative = 0
-sqrtn = int(np.sqrt(data.shape[0])) 
+normalization(data, validation)
+print(data[['ram','px_width', 'battery_power', 'px_height']])
+print(validation[['ram','px_width', 'battery_power', 'px_height']])
+sqrtn = int(np.sqrt(data.shape[0]))
+
+k = 30
+result = pd.DataFrame(columns=['id', 'price_range'], index=range(validation.shape[0]))
 for i in tqdm(range(validation.shape[0])):
-    if validation["price_range"].iloc[i] == knn(data, sqrtn, validation.iloc[i]):
-        truePositive += 1
-    else:
-        trueNegative += 1
-        
-print(truePositive/(truePositive+trueNegative)*100)
+    result['id'].iloc[i] = i
+    result['price_range'].iloc[i] = knn(data, k, validation.iloc[i], ['ram','px_width', 'battery_power', 'px_height'])
+
+result.to_csv("KNN/" + sys.argv[3], index=False)
