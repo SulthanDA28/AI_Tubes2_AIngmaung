@@ -2,7 +2,7 @@ import pandas as pd
 import sys
 
 pred = pd.read_csv(sys.argv[1]) 
-true = pd.read_csv(sys.argv[2])
+true = pd.read_csv("Data/" + sys.argv[2])
 
 true_positive = 0
 true_negative = 0

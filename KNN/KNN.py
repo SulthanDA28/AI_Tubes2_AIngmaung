@@ -3,8 +3,8 @@ import numpy as np
 from tqdm import tqdm
 import sys
 
-data = pd.read_csv(sys.argv[1])
-validation = pd.read_csv(sys.argv[2])
+data = pd.read_csv("Data/" + sys.argv[1])
+validation = pd.read_csv("Data/" + sys.argv[2])
 
 def knn(data, k, cari, features):
     result = pd.DataFrame(columns=['distance', 'price_range'], index=range(data.shape[0]))
