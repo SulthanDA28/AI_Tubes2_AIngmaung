@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import sys
-from calc_accuracy import calculate_accuracy
 
 data = pd.read_csv(sys.argv[1])
 validation = pd.read_csv(sys.argv[2])
@@ -33,13 +32,13 @@ normalization(data, validation)
 # print(validation[['ram','px_width', 'battery_power', 'px_height']])
 sqrtn = int(np.sqrt(data.shape[0]))
 
-k = 17
+k = 15
 result = pd.DataFrame(columns=['id', 'price_range'], index=range(validation.shape[0]))
 for i in tqdm(range(validation.shape[0])):
     result['id'].iloc[i] = i
     result['price_range'].iloc[i] = knn(data, k, validation.iloc[i], 
                                         ['ram','px_width', 'battery_power', 'px_height'], 
                                         [0.7,0.1,0.1,0.1])
-print("accuracy: ", calculate_accuracy(result, validation))
+# print("accuracy: ", calculate_accuracy(result, validation))
 result.to_csv("KNN/" + sys.argv[3], index=False)
 print("result saved to KNN/" + sys.argv[3])
