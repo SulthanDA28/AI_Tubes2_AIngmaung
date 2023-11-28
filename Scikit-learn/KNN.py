@@ -3,8 +3,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 
-data = pd.read_csv('./data_train.csv')
-validation = pd.read_csv('./data_validation.csv')
+data = pd.read_csv('./Data/data_train.csv')
+validation = pd.read_csv('./Data/data_validation.csv')
 features = ['ram','px_width', 'battery_power', 'px_height']
 x = data[['ram','px_width', 'battery_power', 'px_height']].values
 y = data.iloc[:, -1].values
@@ -19,7 +19,7 @@ x_val = scaler.transform(x_val)
 print(x)
 print(x_val)
 
-knn = KNeighborsClassifier(n_neighbors=33)
+knn = KNeighborsClassifier(n_neighbors=29,weights='distance')
 knn.fit(x, y)
 y_pred = knn.predict(x_val)
 
