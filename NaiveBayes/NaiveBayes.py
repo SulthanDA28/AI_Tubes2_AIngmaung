@@ -3,17 +3,40 @@ import pandas as pd
 import sys
 
 class NaiveBayesClassifier:
+    """
+    Naive Bayes classifier untuk data numerik dan kategorikal
+    """
     def __init__(self):
-        self.class_priors = None
-        self.num_feature_means = None
-        self.num_feature_stds = None
-        self.cat_feature_probs = None
-        self.classes = None
+        """
+        Konstruktor kelas NaiveBayesClassifier
+        
+        Atribut:
+        - class_priors (dict): prior probability dari kelas-kelas pada kolom target 
+        - num_feature_means (dict): rata-rata nilai fitur kolom numerik untuk setiap kelas
+        - num_feature_stds (dict): standar deviasi nilai fitur kolom numerik untuk setiap kelas
+        - cat_feature_probs (dict): probabilitas nilai fitur kolom non numerik untuk setiap kelas
+        - classes (np.ndarray): daftar kelas yang muncul pada kolom target
+        """
+        self.class_priors: dict = None
+        self.num_feature_means: dict = None
+        self.num_feature_stds: dict = None
+        self.cat_feature_probs: dict = None
+        self.classes: np.ndarray = None
 
-    def fit(self, X, y, numerical_columns, categorical_columns):
+    def fit(self, X: pd.DataFrame, y: pd.Series, numerical_columns: list, categorical_columns: list) -> None:
+        """
+        Melatih model Naive Bayes.
+
+        Parameters:
+        - X (pd.DataFrame): DataFrame berisi fitur-fitur dataset.
+        - y (pd.Series): Seri berisi label-label kelas.
+        - numerical_columns (list): Daftar kolom fitur numerik.
+        - categorical_columns (list): Daftar kolom fitur kategorikal.
+        """
         # Calculate class priors
         self.class_priors = {c: np.sum(y == c) / len(y) for c in np.unique(y)}
         self.classes = np.unique(y)
+        
         # Calculate numerical feature statistics
         self.num_feature_means = {}
         self.num_feature_stds = {}
@@ -22,6 +45,7 @@ class NaiveBayesClassifier:
             class_features = X.loc[c_mask, numerical_columns]
             self.num_feature_means[c] = class_features.mean()
             self.num_feature_stds[c] = class_features.std()
+            
         # Calculate categorical feature probabilities
         self.cat_feature_probs = {}
         for c in self.classes:
@@ -30,7 +54,17 @@ class NaiveBayesClassifier:
             cat_probs = (class_features.apply(lambda x: x.value_counts(normalize=True)) + 1) / (len(class_features) + len(categorical_columns))
             self.cat_feature_probs[c] = cat_probs
 
-    def predict(self, X):
+    def predict(self, X: pd.DataFrame) -> list:
+        """
+        Melakukan prediksi kelas untuk setiap instance dalam dataset.
+        Prediksi untuk numerik dengan gaussian pdf (desnity), dan prediksi untuk kategorikal dengan probabilitas kategorikal.
+
+        Parameters:
+        - X (pd.DataFrame): DataFrame berisi fitur-fitur dataset.
+
+        Returns:
+        - predictions (list): Daftar prediksi kelas untuk setiap instance.
+        """
         predictions = []
         for _, instance in X.iterrows():
             class_probs = []
@@ -48,7 +82,19 @@ class NaiveBayesClassifier:
             predictions.append(predicted_class)
         return predictions
 
-    def gaussian_pdf(self, x, mean, std):
+    def gaussian_pdf(self, x: float, mean: float, std: float) -> float:
+        """
+        Menghitung nilai PDF (Probability Density Function) distribusi Gaussian.
+
+        Parameters:
+        - x (float): Nilai yang akan dihitung probabilitasnya.
+        - mean (float): Rata-rata distribusi Gaussian.
+        - std (float): Deviasi standar distribusi Gaussian.
+
+        Returns:
+        - pdf_value (float): Nilai PDF untuk input x.
+        """
+
         exponent = np.exp(-((x - mean) ** 2) / (2 * std ** 2))
         return (1 / (np.sqrt(2 * np.pi) * std)) * exponent
 
