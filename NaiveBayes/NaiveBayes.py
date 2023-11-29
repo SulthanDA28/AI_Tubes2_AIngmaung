@@ -69,15 +69,10 @@ class NaiveBayesClassifier:
         for _, instance in X.iterrows():
             class_probs = []
             for c in self.classes:
-                # Calculate the probability for each class
                 num_probs = np.sum(np.log(self.gaussian_pdf(instance, self.num_feature_means[c], self.num_feature_stds[c])))
-                # Calculate categorical feature probabilities
-                cat_probs = np.sum(
-                    instance[categorical_columns].apply(lambda x: np.log(self.cat_feature_probs[c].get(x, 1)))
-                )
+                cat_probs = np.sum(instance[categorical_columns].apply(lambda x: np.log(self.cat_feature_probs[c].get(x, 1))))
                 class_prob = np.log(self.class_priors[c]) + num_probs + cat_probs
                 class_probs.append(class_prob)
-            # Assign the class with the highest probability
             predicted_class = self.classes[np.argmax(class_probs)]
             predictions.append(predicted_class)
         return predictions
@@ -129,8 +124,8 @@ if __name__ == "__main__":
         y_validation = data_validation[label_column]
     else:
         X_validation = data_validation
-    numerical_columns = ["battery_power", "clock_speed", "fc", "int_memory", "m_dep", "mobile_wt", "n_cores", "pc",
-                        "px_height", "px_width", "ram", "sc_h", "sc_w", "talk_time"]
+    numerical_columns = ["battery_power", "clock_speed", "fc", "int_memory", "m_dep", "mobile_wt", "n_cores", 
+                        "pc", "px_height", "px_width", "ram", "sc_h", "sc_w", "talk_time"]
     categorical_columns = ["blue", "dual_sim", "four_g", "three_g", "touch_screen", "wifi"]
     model = NaiveBayesClassifier()
     model.fit(X_train, y_train, numerical_columns, categorical_columns)
