@@ -14,7 +14,7 @@ class KNNclassifier:
     def predict(self, test_data : pd.DataFrame) -> pd.DataFrame:
         self._normalize(self.training_data, test_data)
         result = pd.DataFrame(columns=['id', 'price_range'], index=range(test_data.shape[0]))
-        for i in tqdm(range(test_data.shape[0])):
+        for i in range(test_data.shape[0]):
             result['id'].iloc[i] = i
             result['price_range'].iloc[i] = self.predict_one(test_data.iloc[i])
         return result
