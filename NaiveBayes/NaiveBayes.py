@@ -96,4 +96,4 @@ if __name__ == "__main__":
         result_df = pd.DataFrame({"id": data_validation.index, "price_range": predictions})
     else:
         result_df = pd.DataFrame({"id": range(data_validation.shape[0]), "price_range": predictions})
-    result_df.to_csv("NaiveBayes/" + sys.argv[3], index=False)
+    result_df.to_csv("Out/" + sys.argv[3], index=False)
