@@ -25,15 +25,15 @@ class KNNclassifier:
         result['distance'] = eucDist
         result[self.y_label] = self.training_data[self.y_label]
         result = result.sort_values(by=['distance'])
-        result = result.iloc[0:k]
+        result = result.iloc[0:self.k]
         score = np.zeros(4)
-        for i in range(k):
+        for i in range(self.k):
             if result['distance'].iloc[i] == 0:
                 return result[self.y_label].iloc[i]
             score[result[self.y_label].iloc[i]] += 1 / (result['distance'].iloc[i])
         return np.argmax(score)
 
-    def _normalize(train_data : pd.DataFrame, test_data : pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
+    def _normalize(self, train_data : pd.DataFrame, test_data : pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
         for col in train_data.columns:
             if col != 'price_range':
                 MIN = min(train_data[col].min(),test_data[col].min())
